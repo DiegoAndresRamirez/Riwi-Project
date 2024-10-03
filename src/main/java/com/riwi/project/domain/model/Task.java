@@ -20,7 +20,11 @@ public class Task {
     @Column(nullable = false)
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "id_user")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "id_project")
     private Project project;
 }

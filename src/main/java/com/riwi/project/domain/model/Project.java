@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -20,4 +22,6 @@ public class Project {
     private String title;
     @Column(nullable = false)
     private String description;
+    @OneToMany(mappedBy = "project")
+    private Set<Task> task;
 }
