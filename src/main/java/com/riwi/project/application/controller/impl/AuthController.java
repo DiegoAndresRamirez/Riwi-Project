@@ -1,12 +1,14 @@
 package com.riwi.project.application.controller.impl;
 
 import com.riwi.project.application.controller.interfaces.IModelAuth;
+import com.riwi.project.application.dto.request.LoginRequestDTO;
 import com.riwi.project.application.dto.request.RegisterRequestDTO;
 import com.riwi.project.application.service.impl.AuthService;
 import com.riwi.project.utils.enu.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,4 +38,13 @@ public class AuthController {
         }
     }
 
+    @PostMapping(path = "/login")
+    @Override
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequestDTO));
+        }catch (UsernameNotFoundException exception){
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+        }
+    }
 }
