@@ -16,5 +16,5 @@ public class ProjectRequestDTO {
 
     private String description;
 
-    private List<TaskRequestDTO> taskList;
+    private List<TaskRequestDTO> tasks;
 }
