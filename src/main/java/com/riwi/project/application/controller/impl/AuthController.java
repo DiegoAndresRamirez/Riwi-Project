@@ -9,32 +9,31 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class AuthController implements IModelAuth {
+public class AuthController {
 
     @Autowired
     AuthService authService;
 
-    @PostMapping("/register-admin")
-    @Override
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO registerRequestDTO, Role admin) {
-        try{
-            return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(registerRequestDTO,Role.ADMIN));
-        }catch (IllegalArgumentException e){
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(
+            @RequestBody RegisterRequestDTO registerRequestDTO,
+            @RequestParam(required = false, defaultValue = "USER") Role role) {
+        try {
+            if (role == null) {
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body(authService.registerUser(registerRequestDTO, Role.USER));
+            } else {
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body(authService.registerUser(registerRequestDTO, role));
+            }
 
-    }
-
-    @PostMapping("/register-user")
-    @Override
-    public ResponseEntity<?> registerUserRegular(@RequestBody RegisterRequestDTO registerRequestDTO, Role user) {
-        try{
-            return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(registerRequestDTO,Role.USER));
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 }

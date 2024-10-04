@@ -20,25 +20,28 @@ public class AuthService implements IModelAuth {
 
     @Override
     public RegisterResponseDTO registerUser(RegisterRequestDTO registerRequestDTO, Role role) {
-
-        User user = userRepository.findByUsername(registerRequestDTO.getUsername());
-
-        if(user != null){
-            throw new IllegalArgumentException("user exist");
+        // Check if the user already exists
+        User existingUser = userRepository.findByUsername(registerRequestDTO.getUsername());
+        if (existingUser != null) {
+            throw new IllegalArgumentException("User already exists");
         }
 
-        User userDb= userMapper.RegisterRequestDTOToUser(registerRequestDTO);
-        userDb.setRole(role);
-        userDb.setEmail(registerRequestDTO.getEmail());
+        // Map the RegisterRequestDTO to a User entity
+        User newUser = userMapper.RegisterRequestDTOToUser(registerRequestDTO);
 
-        userRepository.save(userDb);
+        // Set the role, defaulting to USER if none is provided
+        newUser.setRole(role != null ? role : Role.USER);
+        newUser.setEmail(registerRequestDTO.getEmail());
 
-        RegisterResponseDTO registeResponse =  userMapper.userToRegisterResponseDTO(userDb);
-        registeResponse.setMessage("User Successfully");
-        registeResponse.setUsername(userDb.getUsername());
-        registeResponse.setRole(userDb.getRole());
+        // Save the new user to the database
+        userRepository.save(newUser);
 
-        return registeResponse;
+        // Map the saved User back to a RegisterResponseDTO
+        RegisterResponseDTO registerResponse = userMapper.userToRegisterResponseDTO(newUser);
+        registerResponse.setMessage("User successfully registered");
+        registerResponse.setUsername(newUser.getUsername());
+        registerResponse.setRole(newUser.getRole());
 
+        return registerResponse;
     }
 }
