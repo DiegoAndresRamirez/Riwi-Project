@@ -22,6 +22,6 @@ public class Project {
     private String title;
     @Column(nullable = false)
     private String description;
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Task> task;
 }
