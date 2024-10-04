@@ -21,6 +21,7 @@ public class ApplicationConfig {
     UserRepository userRepository;
 
 
+    @Bean
     public PasswordEncoder passwordEncoder (){
         return new BCryptPasswordEncoder();
     }
@@ -34,6 +35,7 @@ public class ApplicationConfig {
         return daoAuthenticationProvider;
     }
 
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authentication) throws Exception{
         return authentication.getAuthenticationManager();
     }
