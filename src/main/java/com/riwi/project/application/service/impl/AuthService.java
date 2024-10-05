@@ -20,8 +20,9 @@ public class AuthService implements IModelAuth {
 
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    UserMapper userMapper;
+
+    @Autowired(required = false)
+    private UserMapper userMapper;
 
     @Autowired
     JWTService jwtService;

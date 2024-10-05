@@ -1,7 +1,6 @@
 package com.riwi.project.application.dto.response;
 
-import com.riwi.project.domain.model.Task;
-import jakarta.persistence.Column;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
