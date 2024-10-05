@@ -1,6 +1,7 @@
 
 package com.riwi.project.application.service.impl;
 
+import com.riwi.project.application.service.IModel.IModelEmail;
 import org.springframework.stereotype.Service;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -18,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class EmailService {
+public class EmailService implements IModelEmail {
 
   Dotenv dotenv = Dotenv.load();
   String apiKey = dotenv.get("SENDINBLUE_API_KEY");

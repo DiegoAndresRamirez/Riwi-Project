@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,9 +46,11 @@ public class JWTFilter extends OncePerRequestFilter {
         //Obtener el token
         final String token = getTokenFromRequest(request);
         //si el token es nullo seguir con los filtros de spring
-        if(token == null){
-            filterChain.doFilter(request,response);
+        if (token == null) {
+            filterChain.doFilter(request, response);
+            return;  // Añadir return para evitar continuar el filtro
         }
+
 
         String username = jwtService.getUsernameFromToken(token);
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
