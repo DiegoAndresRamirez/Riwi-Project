@@ -5,12 +5,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Component
 public class JWTService {
@@ -42,6 +44,45 @@ public class JWTService {
         claims.put("role", user.getRole().name());
 
         return generateJWT(claims,user);
+    }
+
+    //Metodo para obtener todos los claims
+    public Claims getALlClaims(String token){
+        return Jwts
+                .parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+    }
+
+    //Metodo para obtener todas las claims del token
+    public <T> T getClaim(String token ,Function<Claims,T> claimsResolver){
+        //obtener todos los claims
+        final Claims claims = getALlClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public String getUsernameFromToken(String token){
+        return getClaim(token,Claims::getSubject);
+    }
+
+    public Date getDateExpirationFromToken(String token){
+        return getClaim(token,Claims::getExpiration);
+    }
+
+    public Boolean isTokenExpired(String token){
+        return getDateExpirationFromToken(token).before(new Date());
+    }
+
+    public Boolean isTokenValid(String token, UserDetails userDetails){
+        String username = getUsernameFromToken(token);
+        if(username.equals(userDetails.getUsername()) && !isTokenExpired(token)){
+            return true;
+        }else {
+            return false;
+        }
     }
 
 }
