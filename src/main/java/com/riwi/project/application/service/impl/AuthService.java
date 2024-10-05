@@ -10,14 +10,10 @@ import com.riwi.project.domain.model.User;
 import com.riwi.project.infrastructure.persistence.UserRepository;
 import com.riwi.project.utils.enu.Role;
 import com.riwi.project.utils.enu.helpers.JWTService;
-import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.security.auth.login.CredentialException;
-import javax.security.auth.login.CredentialNotFoundException;
 
 @Service
 public class AuthService implements IModelAuth {
@@ -41,11 +37,10 @@ public class AuthService implements IModelAuth {
             throw new IllegalArgumentException("User already exists");
         }
 
-        User userDb= userMapper.RegisterRequestDTOToUser(registerRequestDTO);
+        User userDb = userMapper.RegisterRequestDTOToUser(registerRequestDTO);
         userDb.setRole(role);
         userDb.setEmail(registerRequestDTO.getEmail());
         userDb.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
-
 
         // Set the role, defaulting to USER if none is provided
         userDb.setRole(role != null ? role : Role.USER);
@@ -68,7 +63,7 @@ public class AuthService implements IModelAuth {
 
         User userlogin = userRepository.findByUsername(loginRequestDTO.getUsername());
 
-        if(userlogin == null){
+        if (userlogin == null) {
             throw new UsernameNotFoundException("User not exist");
         }
 

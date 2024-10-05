@@ -23,13 +23,17 @@ public class SecurityConfig {
     JWTFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/login","/register").permitAll()
                         .requestMatchers("/create-project").hasAnyAuthority("ADMIN")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/register", "/swagger-ui/**", "v3/api-docs/**", "/v3/api-docs.yaml",
+                                "/swagger-ui.html")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

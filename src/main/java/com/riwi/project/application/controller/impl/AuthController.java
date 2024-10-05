@@ -42,8 +42,8 @@ public class AuthController implements  IModelAuth{
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequestDTO));
-        }catch (UsernameNotFoundException exception){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+        } catch (UsernameNotFoundException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
         }
     }
 }
