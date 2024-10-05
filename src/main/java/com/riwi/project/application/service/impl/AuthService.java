@@ -10,14 +10,10 @@ import com.riwi.project.domain.model.User;
 import com.riwi.project.infrastructure.persistence.UserRepository;
 import com.riwi.project.utils.enu.Role;
 import com.riwi.project.utils.enu.helpers.JWTService;
-import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.security.auth.login.CredentialException;
-import javax.security.auth.login.CredentialNotFoundException;
 
 @Service
 public class AuthService implements IModelAuth {
@@ -41,24 +37,23 @@ public class AuthService implements IModelAuth {
             throw new IllegalArgumentException("User already exists");
         }
 
-        User userDb= userMapper.RegisterRequestDTOToUser(registerRequestDTO);
+        User userDb = userMapper.RegisterRequestDTOToUser(registerRequestDTO);
         userDb.setRole(role);
         userDb.setEmail(registerRequestDTO.getEmail());
         userDb.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
 
-
         // Set the role, defaulting to USER if none is provided
-        newUser.setRole(role != null ? role : Role.USER);
-        newUser.setEmail(registerRequestDTO.getEmail());
+        userDb.setRole(role != null ? role : Role.USER);
+        userDb.setEmail(registerRequestDTO.getEmail());
 
         // Save the new user to the database
-        userRepository.save(newUser);
+        userRepository.save(userDb);
 
         // Map the saved User back to a RegisterResponseDTO
-        RegisterResponseDTO registerResponse = userMapper.userToRegisterResponseDTO(newUser);
+        RegisterResponseDTO registerResponse = userMapper.userToRegisterResponseDTO(userDb);
         registerResponse.setMessage("User successfully registered");
-        registerResponse.setUsername(newUser.getUsername());
-        registerResponse.setRole(newUser.getRole());
+        registerResponse.setUsername(userDb.getUsername());
+        registerResponse.setRole(userDb.getRole());
 
         return registerResponse;
     }
@@ -68,7 +63,7 @@ public class AuthService implements IModelAuth {
 
         User userlogin = userRepository.findByUsername(loginRequestDTO.getUsername());
 
-        if(userlogin == null){
+        if (userlogin == null) {
             throw new UsernameNotFoundException("User not exist");
         }
 
