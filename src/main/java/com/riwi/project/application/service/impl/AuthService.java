@@ -48,17 +48,17 @@ public class AuthService implements IModelAuth {
 
 
         // Set the role, defaulting to USER if none is provided
-        newUser.setRole(role != null ? role : Role.USER);
-        newUser.setEmail(registerRequestDTO.getEmail());
+        userDb.setRole(role != null ? role : Role.USER);
+        userDb.setEmail(registerRequestDTO.getEmail());
 
         // Save the new user to the database
-        userRepository.save(newUser);
+        userRepository.save(userDb);
 
         // Map the saved User back to a RegisterResponseDTO
-        RegisterResponseDTO registerResponse = userMapper.userToRegisterResponseDTO(newUser);
+        RegisterResponseDTO registerResponse = userMapper.userToRegisterResponseDTO(userDb);
         registerResponse.setMessage("User successfully registered");
-        registerResponse.setUsername(newUser.getUsername());
-        registerResponse.setRole(newUser.getRole());
+        registerResponse.setUsername(userDb.getUsername());
+        registerResponse.setRole(userDb.getRole());
 
         return registerResponse;
     }

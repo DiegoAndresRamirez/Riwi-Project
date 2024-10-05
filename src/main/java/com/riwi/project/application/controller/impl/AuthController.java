@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class AuthController {
+public class AuthController implements  IModelAuth{
 
     @Autowired
     AuthService authService;
@@ -39,7 +39,6 @@ public class AuthController {
     }
 
     @PostMapping(path = "/login")
-    @Override
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequestDTO));
