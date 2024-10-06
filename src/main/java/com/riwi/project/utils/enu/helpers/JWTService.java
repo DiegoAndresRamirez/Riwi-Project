@@ -18,16 +18,12 @@ import java.util.Date;
 public class JWTService {
 
     private final String SECRET_KEY = "ZXN0YSBlcyBsYSBjb250cmFzZcOxYSBzdXBlciBzZWd1cmEgcXVlIGxlIHRlbmdvIGEgbGEgYXBsaWNhdGlvbiByaXdpIHByb2plY3QgcGFyYSBxdWUgbmFkaWUgbGEgYWRpdmluZQ==";
-    // esta es la contraseña super segura que le tengo a la aplication riwi project
-    // para que nadie la adivine
 
-    // Obtengo la SECRET KEY y cifro la secretKey
     public SecretKey getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // crear jwt
     public String generateJWT(Map<String, Object> claims, User user) {
         return Jwts.builder()
                 .setClaims(claims)  // Cambiado de claims() a setClaims()
@@ -47,11 +43,10 @@ public class JWTService {
         return generateJWT(claims, user);
     }
 
-    // Metodo para obtener todos los claims
     public Claims getALlClaims(String token) {
         return Jwts
-                .parserBuilder()  // Cambiado a parserBuilder()
-                .setSigningKey(getKey())  // Debes usar setSigningKey en lugar de verifyWith
+                .parserBuilder()
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -59,9 +54,7 @@ public class JWTService {
 
     }
 
-    // Metodo para obtener todas las claims del token
     public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
-        // obtener todos los claims
         final Claims claims = getALlClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -82,5 +75,10 @@ public class JWTService {
         String username = getUsernameFromToken(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    }
+
 
 }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import sendinblue.ApiException;
 
 @RestController
-@RequestMapping("/api/email")
 public class EmailController implements IModelEmail {
 
   @Autowired

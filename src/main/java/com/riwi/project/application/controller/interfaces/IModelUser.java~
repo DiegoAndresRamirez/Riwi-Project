@@ -1,0 +1,6 @@
+package com.riwi.project.application.controller.interfaces;
+
+public interface IModelUser {
+    public ResponseEntity<List<TaskCreateDTO>> getAllTasksByUser() {
+
+    }
