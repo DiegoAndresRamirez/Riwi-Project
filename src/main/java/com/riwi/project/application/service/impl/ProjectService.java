@@ -6,9 +6,13 @@ import com.riwi.project.application.dto.response.TaskCreateDTO;
 import com.riwi.project.application.service.IModel.IModelProject;
 import com.riwi.project.domain.model.Project;
 import com.riwi.project.domain.model.Task;
+import com.riwi.project.domain.model.User;
 import com.riwi.project.infrastructure.persistence.ProjectRepository;
 import com.riwi.project.infrastructure.persistence.TaskRepository;
+import com.riwi.project.infrastructure.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -25,8 +29,26 @@ public class ProjectService implements IModelProject {
     @Autowired
     TaskRepository taskRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @Override
     public ProjectCreateDTO createProjectWithTask(ProjectRequestDTO projectRequestDTO) {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new IllegalStateException("No hay una sesión activa");
+            }
+
+            Object principal = authentication.getPrincipal();
+            if (principal == null) {
+                throw new IllegalStateException("No hay un usuario autenticado");
+            }
+
+            String username = (String) principal;
+
+            User user = userRepository.findByUsername(username);
+
             Project project = new Project();
             project.setTitle(projectRequestDTO.getProject());
             project.setDescription(projectRequestDTO.getDescription());
@@ -36,7 +58,8 @@ public class ProjectService implements IModelProject {
                         Task task = new Task();
                         task.setTitle(taskRequest.getTitle());
                         task.setDescription(taskRequest.getDescription());
-                        task.setProject(project); // Asignar el proyecto a la tarea
+                        task.setProject(project);
+                        task.setUser(user);
                         return task;
                     })
                     .toList();

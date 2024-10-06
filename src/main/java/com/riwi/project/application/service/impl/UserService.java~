@@ -39,7 +39,7 @@ public class UserService implements IModelUser  {
 
         User user = userRepository.findByUsername(username);
 
-        List<Task> tasks = taskRepository.findAllByUser(user);
+        List<Task> tasks = taskRepository.findAllByUser(username);
         return tasks.stream()
                 .map(task -> TaskCreateDTO.builder()
                         .id(task.getId())
