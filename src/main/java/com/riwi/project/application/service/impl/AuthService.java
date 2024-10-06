@@ -10,7 +10,12 @@ import com.riwi.project.domain.model.User;
 import com.riwi.project.infrastructure.persistence.UserRepository;
 import com.riwi.project.utils.enu.Role;
 import com.riwi.project.utils.enu.helpers.JWTService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,25 +37,42 @@ public class AuthService implements IModelAuth {
 
     @Override
     public RegisterResponseDTO registerUser(RegisterRequestDTO registerRequestDTO, Role role) {
-        // Check if the user already exists
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication: " + authentication);
+        System.out.println("Is authenticated: " + (authentication != null && authentication.isAuthenticated()));
+        if (authentication != null) {
+            System.out.println("Authorities: " + authentication.getAuthorities());
+        }
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated();
+
+        if (isAuthenticated && authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Role.USER.name()))) {
+            throw new IllegalArgumentException("Logged in users cannot register new accounts");
+        }
+
         User existingUser = userRepository.findByUsername(registerRequestDTO.getUsername());
         if (existingUser != null) {
             throw new IllegalArgumentException("User already exists");
         }
 
         User userDb = userMapper.RegisterRequestDTOToUser(registerRequestDTO);
-        userDb.setRole(role);
         userDb.setEmail(registerRequestDTO.getEmail());
         userDb.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
 
-        // Set the role, defaulting to USER if none is provided
-        userDb.setRole(role != null ? role : Role.USER);
-        userDb.setEmail(registerRequestDTO.getEmail());
+        if (role == Role.ADMIN) {
+            if (!isAuthenticated || !authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Role.ADMIN.name()))) {
+                throw new IllegalArgumentException("Only admins can register new admins");
+            }
+            userDb.setRole(Role.ADMIN);
+        } else if (role == Role.USER) {
+            userDb.setRole(Role.USER);
+        } else {
+            throw new IllegalArgumentException("Invalid role specified");
+        }
 
-        // Save the new user to the database
         userRepository.save(userDb);
 
-        // Map the saved User back to a RegisterResponseDTO
         RegisterResponseDTO registerResponse = userMapper.userToRegisterResponseDTO(userDb);
         registerResponse.setMessage("User successfully registered");
         registerResponse.setUsername(userDb.getUsername());
@@ -59,13 +81,23 @@ public class AuthService implements IModelAuth {
         return registerResponse;
     }
 
+
     @Override
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth != null && currentAuth.isAuthenticated() &&
+                !(currentAuth instanceof AnonymousAuthenticationToken)) {
+            throw new IllegalStateException("Ya hay una sesión activa. Por favor, cierre sesión antes de iniciar una nueva.");
+        }
 
         User userlogin = userRepository.findByUsername(loginRequestDTO.getUsername());
 
         if (userlogin == null) {
-            throw new UsernameNotFoundException("User not exist");
+            throw new UsernameNotFoundException("El usuario no existe");
+        }
+
+        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), userlogin.getPassword())) {
+            throw new BadCredentialsException("Contraseña incorrecta");
         }
 
         LoginResponseDTO loginResponseDTO = userMapper.loginRequestDTOTologinResponseDTO(loginRequestDTO);
@@ -75,4 +107,6 @@ public class AuthService implements IModelAuth {
 
         return loginResponseDTO;
     }
+
+
 }

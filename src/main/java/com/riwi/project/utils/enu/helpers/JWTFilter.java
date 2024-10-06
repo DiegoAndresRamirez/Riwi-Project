@@ -27,11 +27,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Autowired
     UserDetailsService userDetailsService;
 
-
-    //Metodo para obtener el token del request
-
     public String getTokenFromRequest(HttpServletRequest request){
-        //obtener el token del header
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -43,12 +39,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //Obtener el token
         final String token = getTokenFromRequest(request);
-        //si el token es nullo seguir con los filtros de spring
         if (token == null) {
             filterChain.doFilter(request, response);
-            return;  // Añadir return para evitar continuar el filtro
+            return;
         }
 
 
