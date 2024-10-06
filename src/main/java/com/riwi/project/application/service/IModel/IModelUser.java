@@ -1,5 +1,9 @@
 package com.riwi.project.application.service.IModel;
 
-public interface IModelUser {
+import com.riwi.project.application.dto.response.TaskCreateDTO;
 
+import java.util.List;
+
+public interface IModelUser {
+    List<TaskCreateDTO> getAllTasksByUser();
 }
